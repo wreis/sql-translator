@@ -126,10 +126,14 @@ statement : remark
 alter : /alter/i WORD /[^;]+/ ';'
     { @table_comments = () }
 
-drop : /drop/i TABLE ';'
+drop : /drop/i TABLE table_name CASCADE(?) PURGE(?) ';'
 
 drop : /drop/i WORD(s) ';'
     { @table_comments = () }
+
+CASCADE : /cascade/i /constraints/i
+
+PURGE : /purge/i
 
 create : create_table table_name '(' create_definition(s /,/) ')' table_option(s?) ';'
     {
