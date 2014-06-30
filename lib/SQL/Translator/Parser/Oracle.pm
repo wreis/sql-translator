@@ -578,6 +578,8 @@ UNIQUE : /unique/i { $return = 1 }
 WORD : /\w+/
 
 NAME : /\w+/ { $item[1] }
+    | '"' /(?:[^"]|"")+/ '"'
+    { my $val = $item[2]; $val =~ s/""/"/g; $return = $val }
 
 TABLE : /table/i
 
