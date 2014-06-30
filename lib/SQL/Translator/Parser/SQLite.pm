@@ -619,7 +619,19 @@ UNIQUE : /unique/i { 1 }
 
 SEMICOLON : ';'
 
-NAME : /["']?(\w+)["']?/ { $return = $1 }
+NAME : /\w+/ { $item[1] }
+    | /"((?:[^"]|"")*)"/
+    {
+        my $val = $1;
+        $val    =~ s/""/"/g;
+        $return = $val;
+    }
+    | /'((?:[^']|'')*)'/
+    {
+        my $val = $1;
+        $val    =~ s/''/'/g;
+        $return = $val;
+    }
 
 VALUE : /[-+]?\.?\d+(?:[eE]\d+)?/
     { $item[1] }
