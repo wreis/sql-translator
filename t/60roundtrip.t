@@ -56,7 +56,6 @@ my $plan = [
     engine => 'SQLServer',
     producer_args => {},
     parser_args => {},
-    todo => 'Parsing of quoted names is broken',
   },
 
   {
