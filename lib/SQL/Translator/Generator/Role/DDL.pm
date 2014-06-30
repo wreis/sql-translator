@@ -81,7 +81,8 @@ sub field_default {
   if (ref $default) {
       $default = $$default;
   } elsif (!($self->numeric_types->{lc($field->data_type)} && Scalar::Util::looks_like_number ($default))) {
-     $default = "'$default'";
+      $default =~ s/'/''/g;
+      $default = "'$default'";
   }
   return ( "DEFAULT $default" )
 }
