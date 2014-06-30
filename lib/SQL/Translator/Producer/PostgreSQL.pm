@@ -318,7 +318,6 @@ sub create_table
     my %field_name_scope;
     for my $field ( $table->get_fields ) {
         push @field_defs, create_field($field, { quote_table_names => $qt,
-                                                 table_name => $table_name,
                                                  postgres_version => $postgres_version,
                                                  type_defs => $type_defs,
                                                  constraint_defs => \@constraint_defs,});
@@ -333,7 +332,6 @@ sub create_table
         my ($idef, $constraints) = create_index($index,
                                               {
                                                   quote_table_names => $qt,
-                                                  table_name => $table_name,
                                               });
         $idef and push @index_defs, $idef;
         push @constraint_defs, @$constraints;
@@ -347,7 +345,6 @@ sub create_table
         my ($cdefs, $fks) = create_constraint($c,
                                               {
                                                   quote_table_names => $qt,
-                                                  table_name => $table_name,
                                               });
         push @constraint_defs, @$cdefs;
         push @fks, @$fks;
@@ -506,7 +503,6 @@ sub create_view {
             my ($cdefs, $fks) = create_constraint($_,
                                          {
                                             quote_table_names => $qt,
-                                            table_name => $table_name,
                                          });
             push @$constraint_defs, @$cdefs;
             push @$fks, @$fks;
@@ -937,7 +933,6 @@ sub alter_create_index {
     my $generator = _generator($qt);
     my ($idef, $constraints) = create_index($index, {
         quote_table_names => $qt,
-        table_name => $index->table->name,
     });
     return $index->type eq NORMAL ? $idef
         : sprintf('ALTER TABLE %s ADD %s',
