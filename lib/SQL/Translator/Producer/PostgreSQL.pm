@@ -202,12 +202,12 @@ sub produce {
     }
 
     for my $view ( $schema->get_views ) {
-      push @table_defs, create_view($view, {
-        postgres_version  => $postgres_version,
-        add_drop_view     => $add_drop_table,
-        quote_table_names => $qt,
-        no_comments       => $no_comments,
-      });
+        push @table_defs, create_view($view, {
+            postgres_version  => $postgres_version,
+            add_drop_view     => $add_drop_table,
+            quote_table_names => $qt,
+            no_comments       => $no_comments,
+        });
     }
 
     for my $trigger ( $schema->get_triggers ) {
@@ -317,10 +317,12 @@ sub create_table
     #
     my %field_name_scope;
     for my $field ( $table->get_fields ) {
-        push @field_defs, create_field($field, { quote_table_names => $qt,
-                                                 postgres_version => $postgres_version,
-                                                 type_defs => $type_defs,
-                                                 constraint_defs => \@constraint_defs,});
+        push @field_defs, create_field($field, {
+            quote_table_names => $qt,
+            postgres_version => $postgres_version,
+            type_defs => $type_defs,
+            constraint_defs => \@constraint_defs,
+        });
     }
 
     #
@@ -329,10 +331,9 @@ sub create_table
     my @index_defs = ();
  #   my $idx_name_default;
     for my $index ( $table->get_indices ) {
-        my ($idef, $constraints) = create_index($index,
-                                              {
-                                                  quote_table_names => $qt,
-                                              });
+        my ($idef, $constraints) = create_index($index, {
+            quote_table_names => $qt,
+        });
         $idef and push @index_defs, $idef;
         push @constraint_defs, @$constraints;
     }
@@ -342,10 +343,9 @@ sub create_table
     #
     my $c_name_default;
     for my $c ( $table->get_constraints ) {
-        my ($cdefs, $fks) = create_constraint($c,
-                                              {
-                                                  quote_table_names => $qt,
-                                              });
+        my ($cdefs, $fks) = create_constraint($c, {
+            quote_table_names => $qt,
+        });
         push @constraint_defs, @$cdefs;
         push @fks, @$fks;
     }
@@ -500,10 +500,9 @@ sub create_view {
       #
       if(is_geometry($field)){
          foreach ( create_geometry_constraints($field) ) {
-            my ($cdefs, $fks) = create_constraint($_,
-                                         {
-                                            quote_table_names => $qt,
-                                         });
+            my ($cdefs, $fks) = create_constraint($_, {
+                quote_table_names => $qt,
+            });
             push @$constraint_defs, @$cdefs;
             push @$fks, @$fks;
          }
