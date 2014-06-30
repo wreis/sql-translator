@@ -862,12 +862,12 @@ DOUBLE_QUOTE: '"'
 
 SINGLE_QUOTE: "'"
 
-QUOTED_NAME : BACKTICK /[^`]+/ BACKTICK
-    { $item[2] }
-    | DOUBLE_QUOTE /[^"]+/ DOUBLE_QUOTE
-    { $item[2] }
-    | SINGLE_QUOTE /[^']+/ SINGLE_QUOTE
-    { $item[2] }
+QUOTED_NAME : BACKTICK /(?:[^`]|``)+/ BACKTICK
+    { my $val = $item[2]; $val =~ s/``/`/g; $return = $val }
+    | DOUBLE_QUOTE /(?:[^"]|"")+/ DOUBLE_QUOTE
+    { my $val = $item[2]; $val =~ s/""/"/g; $return = $val }
+    | SINGLE_QUOTE /(?:[^']|''|\\')+/ SINGLE_QUOTE
+    { my $val = $item[2]; $val =~ s/''/'/g; $return = $val }
 
 NAME: QUOTED_NAME
     | /\w+/
