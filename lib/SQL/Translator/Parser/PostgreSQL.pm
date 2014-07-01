@@ -929,10 +929,9 @@ create_table : CREATE TABLE
 
 create_index : CREATE /index/i
 
-default_val  : DEFAULT /(\d+|'[^']*'|\w+\(.*\))|\w+|\(\d+\)/ ( '::' data_type )(?)
+default_val  : DEFAULT DEFAULT_VALUE ( '::' data_type )(?)
     {
-        my $val =  defined $item[2] ? $item[2] : '';
-        $val    =~ s/^'|'$//g;
+        my $val =  $item[2];
         $val =~ s/^\((\d+)\)\z/$1/; # for example (0)::smallint
         $return =  {
             supertype => 'constraint',
@@ -948,6 +947,11 @@ default_val  : DEFAULT /(\d+|'[^']*'|\w+\(.*\))|\w+|\(\d+\)/ ( '::' data_type )(
             value     => 'NULL',
         }
     }
+
+DEFAULT_VALUE : VALUE
+    | /\w+\(.*\)/
+    | /\w+/
+    | /\(\d+\)/
 
 name_with_opt_paren : NAME parens_value_list(s?)
     { $item[2][0] ? "$item[1]($item[2][0][0])" : $item[1] }
@@ -1004,15 +1008,17 @@ COMMA : ','
 
 SET : /set/i
 
-NAME    : '"' /(?:[^"]|"")+/ '"'
-    { my $val = $item[2]; $val =~ s/""/"/g; $return = $val }
+NAME : DQSTRING
     | /\w+/
-    { $item[1] }
 
-VALUE   : /[-+]?\.?\d+(?:[eE]\d+)?/
-    { $item[1] }
-    | /'.*?'/   # XXX doesn't handle embedded quotes
-    { $item[1] }
+DQSTRING : '"' /((?:[^"]|"")+)/ '"'
+    { ($return = $item[2]) =~ s/""/"/g; }
+
+SQSTRING : "'" /((?:[^']|'')*)/ "'"
+    { ($return = $item[2]) =~ s/''/'/g }
+
+VALUE : /[-+]?\d*\.?\d+(?:[eE]\d+)?/
+    | SQSTRING
     | /null/i
     { 'NULL' }
 
