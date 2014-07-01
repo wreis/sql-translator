@@ -15,8 +15,9 @@ sub produce { "" }
 ## They are special per Producer, and provide support for the old 'now()'
 ## default value exceptions
 sub _apply_default_value {
-  my (undef, $field, $field_ref, $exceptions) = @_;
+  my (undef, $field, $field_ref, $exceptions, $munge_default) = @_;
   my $default = $field->default_value;
+  $munge_default ||= sub { s/'/''/g };
   return if !defined $default;
 
   if ($exceptions and ! ref $default) {
@@ -41,7 +42,7 @@ sub _apply_default_value {
     # we need to check the data itself in addition to the datatype, for basic safety
       $$field_ref .= " DEFAULT $default";
   } else {
-      $default =~ s/'/''/g;
+      $munge_default->() for $default;
       $$field_ref .= " DEFAULT '$default'";
   }
 

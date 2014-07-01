@@ -900,7 +900,7 @@ ok ($@, 'Exception thrown on invalid version string');
     is( $f2->data_type, 'varchar', 'Type is "varchar"' );
     is( $f2->size, 12, 'Size is "12"' );
     is( $f2->is_nullable, 0, 'Field can not be null' );
-    is( $f2->default_value, "test single quotes like in you''re", "Single quote in default value is escaped properly" );
+    is( $f2->default_value, "test single quotes like in you're", "Single quote in default value is unescaped properly" );
     is( $f2->is_primary_key, 0, 'Field is not PK' );
 
     # this is more of a sanity test because the original sqlt regex for default looked for an escaped quote represented as \'
@@ -909,7 +909,7 @@ ok ($@, 'Exception thrown on invalid version string');
     is( $f3->data_type, 'varchar', 'Type is "varchar"' );
     is( $f3->size, 20, 'Size is "20"' );
     is( $f3->is_nullable, 0, 'Field can not be null' );
-    is( $f3->default_value, "test single quotes escaped like you\\'re", "Single quote in default value is escaped properly" );
+    is( $f3->default_value, "test single quotes escaped like you're", "Single quote in default value is unescaped properly" );
     is( $f3->is_primary_key, 0, 'Field is not PK' );
 }
 

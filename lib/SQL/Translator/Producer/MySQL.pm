@@ -627,6 +627,7 @@ sub create_field
       [
         'NULL'       => \'NULL',
       ],
+      sub { s/([\\'])/$1$1/g },
     );
 
     if ( my $comments = $field->comments ) {

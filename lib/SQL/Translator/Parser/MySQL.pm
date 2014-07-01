@@ -205,12 +205,9 @@ bit:
 
 string :
   # MySQL strings, unlike common SQL strings, can be double-quoted or
-  # single-quoted, and you can escape the delmiters by doubling (but only the
-  # delimiter) or by backslashing.
+  # single-quoted.
 
-   /'(\\.|''|[^\\\'])*'/ |
-   /"(\\.|""|[^\\\"])*"/
-  # For reference, std sql str: /(?:(?:\')(?:[^\']*(?:(?:\'\')[^\']*)*)(?:\'))//
+  SQSTRING | DQSTRING
 
 nonstring : /[^;\'"]+/
 
@@ -681,9 +678,8 @@ default_val :
         $return =  $item[2];
     }
     |
-    /default/i string
+    /default/i VALUE
     {
-        $item[2] =~ s/^\s*'|'\s*$//g or $item[2] =~ s/^\s*"|"\s*$//g;
         $return  =  $item[2];
     }
     |
@@ -862,26 +858,30 @@ DOUBLE_QUOTE: '"'
 
 SINGLE_QUOTE: "'"
 
-QUOTED_NAME : BACKTICK /(?:[^`]|``)+/ BACKTICK
-    { my $val = $item[2]; $val =~ s/``/`/g; $return = $val }
-    | DOUBLE_QUOTE /(?:[^"]|"")+/ DOUBLE_QUOTE
-    { my $val = $item[2]; $val =~ s/""/"/g; $return = $val }
-    | SINGLE_QUOTE /(?:[^']|''|\\')+/ SINGLE_QUOTE
-    { my $val = $item[2]; $val =~ s/''/'/g; $return = $val }
+QUOTED_NAME : BQSTRING
+    | SQSTRING
+    | DQSTRING
+
+# MySQL strings, unlike common SQL strings, can have the delmiters
+# escaped either by doubling or by backslashing.
+BQSTRING: BACKTICK /(?:[^\\`]|``|\\.)*/ BACKTICK
+    { ($return = $item[2]) =~ s/(\\[\\`]|``)/substr($1,1)/ge }
+
+DQSTRING: DOUBLE_QUOTE /(?:[^\\"]|""|\\.)*/ DOUBLE_QUOTE
+    { ($return = $item[2]) =~ s/(\\[\\"]|"")/substr($1,1)/ge }
+
+SQSTRING: SINGLE_QUOTE /(?:[^\\']|''|\\.)*/ SINGLE_QUOTE
+    { ($return = $item[2]) =~ s/(\\[\\']|'')/substr($1,1)/ge }
+
 
 NAME: QUOTED_NAME
     | /\w+/
 
-VALUE : /[-+]?\.?\d+(?:[eE]\d+)?/
+VALUE : /[-+]?\d*\.?\d+(?:[eE]\d+)?/
     { $item[1] }
-    | QUOTED_NAME
-    {
-        # remove leading/trailing quotes
-        my $val = $item[1];
-        $val    =~ s/^['"]|['"]$//g;
-        $return = $val;
-    }
-    | /NULL/
+    | SQSTRING
+    | DQSTRING
+    | /NULL/i
     { 'NULL' }
 
 # always a scalar-ref, so that it is treated as a function and not quoted by consumers
