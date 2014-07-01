@@ -41,6 +41,7 @@ sub _apply_default_value {
     # we need to check the data itself in addition to the datatype, for basic safety
       $$field_ref .= " DEFAULT $default";
   } else {
+      $default =~ s/'/''/g;
       $$field_ref .= " DEFAULT '$default'";
   }
 
